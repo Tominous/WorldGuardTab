@@ -1,0 +1,8 @@
+name: WorlduardTab
+author: Ikeetjeop
+version: 1.0
+main: me.Ikeetjeop.WG.WGT
+description: ...
+commands:
+  rg:
+    description: autotab
