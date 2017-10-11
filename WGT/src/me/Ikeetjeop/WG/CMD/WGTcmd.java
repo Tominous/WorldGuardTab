@@ -1,8 +1,11 @@
 package me.Ikeetjeop.WG.CMD;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import me.Ikeetjeop.WG.WGT;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -10,15 +13,20 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
-
 import com.google.common.collect.Lists;
+import org.bukkit.entity.Player;
 
 public class WGTcmd implements CommandExecutor,TabCompleter{
+
+    /*
+    created by Ikeetjeop
+     */
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("rg")){
 			if(args.length == 0){
-				Bukkit.dispatchCommand(sender, "regions");
+				Bukkit.dispatchCommand(sender, "worldguard:regions");
 				sender.sendMessage(ChatColor.RED + "[WGT] Succsesfull loaded! V1.0");
 				if(sender.hasPermission("WGT.Tab")){
 					sender.sendMessage(ChatColor.RED + "[WGT] Do /rg [TabButton] for start!");
@@ -34,8 +42,20 @@ public class WGTcmd implements CommandExecutor,TabCompleter{
 		}
 		return false;
 	}
+	public List<String> regions(Player p) {
+		ArrayList<String> regionss = new ArrayList<>();
+		WorldGuardPlugin worldGuard = WGT.getInstance().getWorldGuard();
+		RegionManager regionManager = worldGuard.getRegionManager(WGT.getInstance().getWorldGuard().getServer().getWorld(p.getWorld().getUID()));
+		Map<String, ProtectedRegion> regions = regionManager.getRegions();
+		for (ProtectedRegion reg : regions.values()) {
+			regionss.add(reg.getId());
+		}
+		return regionss;
+	}
+
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+		Player p = (Player) sender;
 		List<String> s1 = Arrays.asList("flag" , "select", "migrateuuid", "setpriority", "teleport", "save", "addowner", "removeowner", "list", "remove",
 				"addmember", "redefine", "define", "claim", "setparent", "info", "migratedb" , "reload");
 		List<String> s2 = Arrays.asList("passthrough", "build", "construct", "interact", "block-break", "block-place", "use", "damage-animals", "chest-access",
@@ -64,6 +84,14 @@ public class WGTcmd implements CommandExecutor,TabCompleter{
 				}
 				return Flist;
 			}
+			if(args.length == 2){
+				for(String s : regions(p)){
+					if(s.toLowerCase().startsWith(args[1].toLowerCase())){
+						Flist.add(s);
+					}
+				}
+				return Flist;
+			}
 			if(args.length == 3){
 				if(args[0].equalsIgnoreCase("flag")){
 					for(String s : s2){
@@ -74,8 +102,8 @@ public class WGTcmd implements CommandExecutor,TabCompleter{
 			}
 			if(args.length == 4){
 				if(args[0].equalsIgnoreCase("flag")){
-					if(!(args[2].equalsIgnoreCase("greeting") 
-							|| args[2].equalsIgnoreCase("farewell") 
+					if(!(args[2].equalsIgnoreCase("greeting")
+							|| args[2].equalsIgnoreCase("farewell")
 							|| args[2].equalsIgnoreCase("heal-amount")
 							|| args[2].equalsIgnoreCase("spawn")
 							|| args[2].equalsIgnoreCase("deny-spawn")
@@ -98,7 +126,8 @@ public class WGTcmd implements CommandExecutor,TabCompleter{
 							|| args[2].equalsIgnoreCase("notify-leave")
 							|| args[2].equalsIgnoreCase("buyable")
 							|| args[2].equalsIgnoreCase("price")
-							)){
+							|| args[2].equalsIgnoreCase("construct")
+					)){
 						for(String s : s3){
 							if(s.toLowerCase().startsWith(args[3].toLowerCase())) Flist.add(s);
 						}
@@ -109,12 +138,12 @@ public class WGTcmd implements CommandExecutor,TabCompleter{
 							for(String s : gamemode){
 								if(s.toLowerCase().startsWith(args[3].toLowerCase())) Flist.add(s);
 							}
-						} else if(args[2].equalsIgnoreCase("heal-amount") 
+						} else if(args[2].equalsIgnoreCase("heal-amount")
 								|| args[2].equalsIgnoreCase("feed-delay")
 								|| args[2].equalsIgnoreCase("feed-min-hunger")
 								|| args[2].equalsIgnoreCase("feed-max-hunger")
 								|| args[2].equalsIgnoreCase("feed-amount")
-								|| args[2].equalsIgnoreCase("time-lock") 
+								|| args[2].equalsIgnoreCase("time-lock")
 								|| args[2].equalsIgnoreCase("heal-delay")
 								|| args[2].equalsIgnoreCase("heal-amount")
 								|| args[2].equalsIgnoreCase("heal-min-health")
@@ -152,7 +181,7 @@ public class WGTcmd implements CommandExecutor,TabCompleter{
 							}
 						}
 					}
-				}	
+				}
 				return Flist;
 			}
 		}
